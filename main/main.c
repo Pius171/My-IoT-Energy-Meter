@@ -5,28 +5,18 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include <string.h>
-#include "nanomodbus.h"
 
 // constants
 static const char *TAG = "METER_APP";
 
 #define UART_PORT_NUM UART_NUM_1
-#define UART_BAUD_RATE 4800//9600
+#define UART_BAUD_RATE 4800
 #define TXD_PIN 23
 #define RXD_PIN 22
 #define RTS_PIN 18
 #define CTS_PIN UART_PIN_NO_CHANGE
 #define BUF_SIZE 127
 #define RX_BUF_SIZE 1024
-
-int32_t read(uint8_t* buf, uint16_t count, int32_t byte_timeout_ms, void* arg){
-    int32_t len = uart_read_bytes(UART_PORT_NUM, buf, count, byte_timeout_ms / portTICK_PERIOD_MS);
-    return len;
-}
-int32_t write(const uint8_t* buf, uint16_t count, int32_t byte_timeout_ms, void* arg){
-    int32_t len = uart_write_bytes(UART_PORT_NUM, (const char*)buf, count);
-    return len;
-}
 
 void app_main(void)
 {
@@ -54,34 +44,8 @@ void app_main(void)
 
     uint8_t *data = (uint8_t *)malloc(RX_BUF_SIZE + 1);
 
-  nmbs_platform_conf platform_conf;
-  nmbs_platform_conf_create(&platform_conf);
-  platform_conf.transport = NMBS_TRANSPORT_RTU;
-  platform_conf.read = read;
-  platform_conf.write = write;
-
     while (1)
     {
-  nmbs_t nmbs;
-  nmbs_error err = nmbs_client_create(&nmbs, &platform_conf);
-  if (err != NMBS_ERROR_NONE)
-    {
-        ESP_LOGE(TAG, "Failed to create Modbus client: %d", err);
-        return;
-    }
-
-  nmbs_set_read_timeout(&nmbs, 1000/portTICK_PERIOD_MS);
-  nmbs_set_byte_timeout(&nmbs, 100/portTICK_PERIOD_MS);
-
-  nmbs_set_destination_rtu_address(&nmbs, 1);
-    uint16_t r_regs[2];
-  err = nmbs_input_holding_registers(&nmbs, 0, 1, r_regs);
-  if (err != NMBS_ERROR_NONE){
-    ESP_LOGE(TAG, "Failed to read holding registers: %d", err);
-    return;
-  }
-
-
         // Send data
         uint8_t cmd[] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xC4, 0x0B};
         //uint8_t cmd[] = {0x01, 0x04, 0x07, 0x32, 0x00, 0x02, 0xD1, 0x70}; // for meter
