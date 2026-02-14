@@ -1,0 +1,54 @@
+{
+    "meter_info": {
+        "meter_name": "Fake Meter",
+        "phase": 1,
+        "slave_id": 1
+    },
+    "serial": {
+        "baud_rate": 4800,
+        "data_bits": 8,
+        "parity": "None",
+        "stop_bits": 1
+    },
+    "settings": {
+        "endianness": "big",
+        "addr_offset": 0
+    },
+    "regs": {
+        "Vl1": {
+            "addr": 0,
+            "func": 3,
+            "bytes": 1,
+            "scale": 0.1,
+            "unit": "V"
+        },
+        "Il1": {
+            "addr": 1,
+            "func": 3,
+            "bytes": 2,
+            "scale": 0.1,
+            "unit": "A"
+        },
+        "power": {
+            "addr": 1868,
+            "func": 3,
+            "bytes": 2,
+            "scale": 0.01,
+            "unit": "kW"
+        },
+        "freq": {
+            "addr": 1860,
+            "func": 3,
+            "bytes": 2,
+            "scale": 0.1,
+            "unit": "Hz"
+        },
+        "energy": {
+            "addr": 1800,
+            "func": 3,
+            "bytes": 2,
+            "scale": 1.0,
+            "unit": "kWh"
+        }
+    }
+}

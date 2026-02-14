@@ -60,7 +60,7 @@ std::vector<uint8_t> PDU::serialize() const {
     return bytes;
 }
 
-std::vector<uint8_t> ADU::prepareReadRequest(uint8_t slave, FunctionCode func, uint16_t startAddr, uint16_t quantity) {
+std::vector<uint8_t> ADU::prepareReadRequest(uint8_t slave, uint8_t func, uint16_t startAddr, uint16_t quantity) {
     std::vector<uint8_t> frame = { slave, static_cast<uint8_t>(func) };
     
     uint16_t beAddr = swapEndian(startAddr);

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MITA | Meter Configuration</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #000000;
+            --border: #e0e0e0;
+            --accent: #000000;
+            --hover: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            border: 2px solid var(--text);
+            padding: 40px;
+            box-shadow: 10px 10px 0px var(--text);
+        }
+
+        header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background-color: var(--hover);
+            border-color: var(--text);
+        }
+
+        .btn {
+            background: var(--text);
+            color: var(--bg);
+            border: none;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .status-box {
+            margin-top: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            background: #fafafa;
+            padding: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .meter-info {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>MITA.Project</h1>
+        <p>Meter Interface & Telemetry Adapter</p>
+    </header>
+
+    <div class="meter-info">
+        <span>Status: <strong>Ready to Sync</strong></span>
+        <span>Slave ID: 01</span>
+    </div>
+
+    <label class="upload-area" id="drop-zone">
+        <input type="file" id="file-input" accept=".json">
+        <div id="file-name">Drag & Drop Config File<br><small>(meter_config.json)</small></div>
+    </label>
+
+    <button class="btn" onclick="uploadFile()">Upload to ESP</button>
+
+    <div class="status-box" id="terminal">
+        > Awaiting configuration...<br>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('file-input');
+    const fileNameDisplay = document.getElementById('file-name');
+    const terminal = document.getElementById('terminal');
+
+    fileInput.addEventListener('change', (e) => {
+        const name = e.target.files[0].name;
+        fileNameDisplay.innerHTML = `<strong>Selected:</strong><br>${name}`;
+        terminal.innerHTML += `<br>> File loaded: ${name}`;
+    });
+
+async function uploadFile() {
+    const file = fileInput.files[0];
+    if(!file) {
+        alert("Please select a file first.");
+        return;
+    }
+    
+    terminal.innerHTML += `<br>> Preparing ${file.name}...`;
+
+    // Create a FormData object to hold the file
+    const formData = new FormData();
+    formData.append("config", file); // "config" is the key your ESP32 will look for
+
+    try {
+        // Change '/upload' to your specific ESP32 endpoint
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            terminal.innerHTML += "<br>> <span style='color:green'>Upload Success!</span>";
+            terminal.innerHTML += "<br>> ESP32 is applying configuration...";
+            
+            // Optional: Trigger a restart command if your API supports it
+            // fetch('/restart');
+        } else {
+            throw new Error(`Server responded with ${response.status}`);
+        }
+    } catch (error) {
+        terminal.innerHTML += `<br>> <span style='color:red'>Error: ${error.message}</span>`;
+        console.error("Upload failed:", error);
+    }
+}
+
+
+
+async function uploadFile() {
+const file = fileInput.files[0];
+    if(!file) {
+        alert("Please select a file first.");
+        return;
+    }
+    
+    terminal.innerHTML += `<br>> Preparing ${file.name}...`;
+
+    // Create a FormData object to hold the file
+    const formData = new FormData();
+    formData.append("config", file); // "config" is the key your ESP32 will look for
+
+
+    try {
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            terminal.innerHTML += "<br>> <span style='color:green'>Upload Success!</span>";
+            terminal.innerHTML += "<br>> Requesting System Reboot...";
+            
+            // Trigger the reset automatically after a successful upload
+            await triggerReset();
+        } else {
+            throw new Error(`Server responded with ${response.status}`);
+        }
+    } catch (error) {
+        terminal.innerHTML += `<br>> <span style='color:red'>Error: ${error.message}</span>`;
+    }
+}
+
+async function triggerReset() {
+    try {
+        // We use POST because that's what we defined in the C++ handler
+        const response = await fetch('/reset', { method: 'POST' });
+        if (response.ok) {
+            terminal.innerHTML += "<br>> <span style='color:orange'>System Rebooting...</span>";
+            terminal.innerHTML += "<br>> Connection will be lost. Reconnect to your meter in 10 seconds.";
+            
+            // Optional: Disable the button so they don't click it again
+            document.querySelector('.btn').disabled = true;
+            document.querySelector('.btn').style.opacity = "0.5";
+            document.querySelector('.btn').innerText = "REBOOTING...";
+        }
+    } catch (e) {
+        // We expect a catch here because the ESP32 might reboot 
+        // before the browser finishes processing the response
+        console.log("Reboot initiated.");
+    }
+}
+</script>
+
+
+
+</body>
+</html>

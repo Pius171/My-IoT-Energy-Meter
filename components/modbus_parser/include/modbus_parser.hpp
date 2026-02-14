@@ -48,7 +48,7 @@ struct PDU {
 class ADU {
 public:
     // Command Generators
-    static std::vector<uint8_t> prepareReadRequest(uint8_t slave, FunctionCode func, uint16_t startAddr, uint16_t quantity);
+    static std::vector<uint8_t> prepareReadRequest(uint8_t slave, uint8_t func, uint16_t startAddr, uint16_t quantity);
     static std::vector<uint8_t> prepareWriteSingle(uint8_t slave, uint16_t addr, uint16_t value);
     static std::vector<uint8_t> prepareWriteMultiple(uint8_t slave, uint16_t startAddr, const std::vector<uint16_t>& values);
 
