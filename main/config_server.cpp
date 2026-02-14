@@ -122,7 +122,6 @@ static esp_err_t init_littlefs(void)
     return ESP_OK;
 }
 
-
 static esp_err_t hello_get_handler(httpd_req_t *req)
 {
     FILE *f = fopen("/littlefs/index.html", "r");
@@ -146,6 +145,18 @@ static esp_err_t hello_get_handler(httpd_req_t *req)
     fclose(f);
     httpd_resp_send_chunk(req, NULL, 0);
     return ESP_OK;
+}
+
+static esp_err_t reset_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "Reset requested via Web Portal...");
+    httpd_resp_sendstr(req, "Restarting ESP32... Please wait.");
+
+    // Give the webserver a moment to finish sending the response
+    vTaskDelay(pdMS_TO_TICKS(500));
+
+    esp_restart();
+    return ESP_OK; // Technically never reached, but satisfies compiler
 }
 
 static esp_err_t upload_post_handler(httpd_req_t *req)
@@ -195,7 +206,7 @@ static esp_err_t upload_post_handler(httpd_req_t *req)
 
     /* Respond to the user */
     httpd_resp_sendstr(req, "File uploaded successfully. MITA system updating...");
-     esp_restart();
+
     return ESP_OK;
 }
 
@@ -224,7 +235,15 @@ static httpd_handle_t start_webserver(void)
             .method = HTTP_POST,
             .handler = upload_post_handler,
             .user_ctx = NULL};
+
         httpd_register_uri_handler(server, &upload_uri);
+
+        httpd_uri_t reset_uri = {
+            .uri = "/reset",
+            .method = HTTP_POST,
+            .handler = reset_handler,
+            .user_ctx = NULL};
+        httpd_register_uri_handler(server, &reset_uri);
         return server;
     }
 
@@ -243,8 +262,8 @@ void run_config_server()
     ESP_ERROR_CHECK(ret);
 
     ESP_LOGI(TAG, "ESP_WIFI_MODE_AP");
-    wifi_init_softap();
     init_littlefs();
+    wifi_init_softap();
     start_webserver();
 }
 
@@ -254,18 +273,20 @@ bool is_config_file_present()
     return (stat(CONFIG_FILE_PATH, &st) == 0);
 }
 
-
-std::string load_file_to_string() {
+std::string load_file_to_string()
+{
     struct stat st;
     // 1. Check if file exists and get size
-    if (stat(CONFIG_FILE_PATH, &st) != 0) {
+    if (stat(CONFIG_FILE_PATH, &st) != 0)
+    {
         ESP_LOGE(TAG, "File %s not found", CONFIG_FILE_PATH);
-        return ""; 
+        return "";
     }
 
     // 2. Open the file
-    FILE* f = fopen(CONFIG_FILE_PATH, "r");
-    if (f == NULL) {
+    FILE *f = fopen(CONFIG_FILE_PATH, "r");
+    if (f == NULL)
+    {
         ESP_LOGE(TAG, "Failed to open file for reading");
         return "";
     }
@@ -278,7 +299,8 @@ std::string load_file_to_string() {
     size_t read_size = fread(&contents[0], 1, st.st_size, f);
     fclose(f);
 
-    if (read_size != (size_t)st.st_size) {
+    if (read_size != (size_t)st.st_size)
+    {
         ESP_LOGW(TAG, "Read size mismatch: expected %ld, got %d", st.st_size, read_size);
     }
 

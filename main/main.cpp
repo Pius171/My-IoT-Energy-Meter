@@ -46,31 +46,31 @@ extern "C" void app_main(void)
         printf("%s\n", output.c_str());
 
 
-        // const uart_config_t uart_config = {
-        //     .baud_rate = meter_config["serial"]["baud_rate"],
-        //     .data_bits = get_data_bits(meter_config["serial"]["data_bits"]),
-        //     .parity = get_parity(meter_config["serial"]["parity"]),
-        //     .stop_bits = get_stop_bits(meter_config["serial"]["stop_bits"]),
-        //     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-        //     .source_clk = UART_SCLK_DEFAULT};
+        const uart_config_t uart_config = {
+            .baud_rate = meter_config["serial"]["baud_rate"],
+            .data_bits = get_data_bits(meter_config["serial"]["data_bits"]),
+            .parity = get_parity(meter_config["serial"]["parity"]),
+            .stop_bits = get_stop_bits(meter_config["serial"]["stop_bits"]),
+            .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+            .source_clk = UART_SCLK_DEFAULT};
 
-        // esp_log_level_set(TAG, ESP_LOG_INFO);
-        // esp_log_level_set(TAG_UART, ESP_LOG_INFO);
-        // esp_log_level_set(TAG_MODBUS, ESP_LOG_INFO);
-        // esp_log_level_set(TAG_FS, ESP_LOG_INFO);
+        esp_log_level_set(TAG, ESP_LOG_INFO);
+        esp_log_level_set(TAG_UART, ESP_LOG_INFO);
+        esp_log_level_set(TAG_MODBUS, ESP_LOG_INFO);
+        esp_log_level_set(TAG_FS, ESP_LOG_INFO);
 
-        // ESP_LOGI(TAG, "Start RS485 application test and configure UART.");
+        ESP_LOGI(TAG, "Start RS485 application test and configure UART.");
 
-        // ESP_ERROR_CHECK(uart_driver_install(UART_PORT_NUM, BUF_SIZE * 2, 0, 0, NULL, 0));
-        // ESP_ERROR_CHECK(uart_param_config(UART_PORT_NUM, &uart_config));
+        ESP_ERROR_CHECK(uart_driver_install(UART_PORT_NUM, BUF_SIZE * 2, 0, 0, NULL, 0));
+        ESP_ERROR_CHECK(uart_param_config(UART_PORT_NUM, &uart_config));
 
-        // ESP_ERROR_CHECK(uart_set_pin(UART_PORT_NUM, TXD_PIN, RXD_PIN, RTS_PIN, CTS_PIN));
-        // // Set RS485 half duplex mode
-        // ESP_ERROR_CHECK(uart_set_mode(UART_PORT_NUM, UART_MODE_RS485_HALF_DUPLEX));
+        ESP_ERROR_CHECK(uart_set_pin(UART_PORT_NUM, TXD_PIN, RXD_PIN, RTS_PIN, CTS_PIN));
+        // Set RS485 half duplex mode
+        ESP_ERROR_CHECK(uart_set_mode(UART_PORT_NUM, UART_MODE_RS485_HALF_DUPLEX));
 
-        // ESP_LOGI(TAG_UART, "UART configured successfully.");
+        ESP_LOGI(TAG_UART, "UART configured successfully.");
 
-        // ESP_LOGI(TAG_MODBUS, "Modbus RTU Master Initialized...\n");
+        ESP_LOGI(TAG_MODBUS, "Modbus RTU Master Initialized...\n");
     }
     else
     {
@@ -79,69 +79,69 @@ extern "C" void app_main(void)
     uint8_t rx_buffer[BUF_SIZE];
 
 
-    // while (1)
-    // {
+    while (1)
+    {
 
-    //     if (config_file_exists)
-    //     {
-    //         // get voltage
-    //         auto request = Modbus::ADU::prepareReadRequest(
-    //             meter_config["meter_info"]["slave_id"], // Slave ID
-    //             meter_config["regs"]["Vl1"]["func"], // function code
-    //             meter_config["regs"]["Vl1"]["addr"], //0 Start Address
-    //             meter_config["regs"]["Vl1"]["bytes"]  //2 Quantity of registers
-    //         );
+        if (config_file_exists)
+        {
+            // get voltage
+            auto request = Modbus::ADU::prepareReadRequest(
+                meter_config["meter_info"]["slave_id"], // Slave ID
+                meter_config["regs"]["Vl1"]["func"], // function code
+                meter_config["regs"]["Vl1"]["addr"], //0 Start Address
+                meter_config["regs"]["Vl1"]["bytes"]  //2 Quantity of registers
+            );
 
-    //         // 2. Transmit via UART
+            // 2. Transmit via UART
 
-    //         uart_write_bytes(UART_PORT_NUM, (const char *)request.data(), request.size());
+            uart_write_bytes(UART_PORT_NUM, (const char *)request.data(), request.size());
 
-    //         // 3. Receive Response (Timeout 1000ms)
-    //         int len = uart_read_bytes(UART_PORT_NUM, rx_buffer, BUF_SIZE, pdMS_TO_TICKS(1000));
+            // 3. Receive Response (Timeout 1000ms)
+            int len = uart_read_bytes(UART_PORT_NUM, rx_buffer, BUF_SIZE, pdMS_TO_TICKS(1000));
 
-    //         if (len > 0)
-    //         {
-    //             // 4. Parse using your ADU class
-    //             auto result = Modbus::ADU::parseResponse(rx_buffer, len);
+            if (len > 0)
+            {
+                // 4. Parse using your ADU class
+                auto result = Modbus::ADU::parseResponse(rx_buffer, len);
 
-    //             if (result.has_value())
-    //             {
-    //                 if (result->isError)
-    //                 {
+                if (result.has_value())
+                {
+                    if (result->isError)
+                    {
 
-    //                     ESP_LOGE(TAG_MODBUS, "Modbus Exception: 0x%02X", (uint8_t)result->exceptionCode);
-    //                 }
-    //                 else
-    //                 {
-    //                     printf("Data Received (%d registers):\n", result->registers.size());
-    //                     for (size_t i = 0; i < result->registers.size(); ++i)
-    //                     {
-    //                         printf(" Register[%d]: %u (0x%04X)\n", i, result->registers[i], result->registers[i]);
-    //                     }
-    //                 }
-    //             }
-    //             else
-    //             {
-    //                 printf("Error: CRC mismatch or malformed packet\n");
-    //             }
-    //         }
-    //         else
-    //         {
-    //             printf("Error: No response from sensor (Timeout)\n");
-    //         }
+                        ESP_LOGE(TAG_MODBUS, "Modbus Exception: 0x%02X", (uint8_t)result->exceptionCode);
+                    }
+                    else
+                    {
+                        printf("Data Received (%d registers):\n", result->registers.size());
+                        for (size_t i = 0; i < result->registers.size(); ++i)
+                        {
+                            printf(" Register[%d]: %u (0x%04X)\n", i, result->registers[i], result->registers[i]);
+                        }
+                    }
+                }
+                else
+                {
+                    printf("Error: CRC mismatch or malformed packet\n");
+                }
+            }
+            else
+            {
+                printf("Error: No response from sensor (Timeout)\n");
+            }
 
-    //         // Delay 2 seconds before next poll
-    //         vTaskDelay(pdMS_TO_TICKS(2000));
-    //     }
-    //     else
-    //     {
-    //         // IMPORTANT: If no config exists, we must still sleep
-    //         // to prevent the Watchdog Timer from rebooting the chip.
+            // Delay 2 seconds before next poll
+            vTaskDelay(pdMS_TO_TICKS(2000));
+        }
+        else
+        {
+            // IMPORTANT: If no config exists, we must still sleep
+            // to prevent the Watchdog Timer from rebooting the chip.
             
-    //    // ESP_LOGI(TAG, "Waiting for Config file...");
-    //         vTaskDelay(pdMS_TO_TICKS(1000));
-    //     }
-    // }
+       // ESP_LOGI(TAG, "Waiting for Config file...");
+            vTaskDelay(pdMS_TO_TICKS(1000));
+        }
+    }
 }
 
 uart_word_length_t get_data_bits(int val)
