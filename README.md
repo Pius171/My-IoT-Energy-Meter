@@ -1,8 +1,7 @@
 
 
 # Separate code
-- put uart one side
-- put modbus poll code 
+- have a constants file 
 
 # Error code
 -1 = CRC mismatch

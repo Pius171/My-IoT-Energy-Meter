@@ -1,5 +1,6 @@
-#include "modbus_handler.cpp"
+#include "modbus_handler.hpp"
 #include "modbus_parser.hpp"
+#include "freertos/task.h"
 #include "esp_log.h"
 
 static const char *TAG = "MODBUS_HANDLER";

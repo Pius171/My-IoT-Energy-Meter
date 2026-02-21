@@ -8,11 +8,11 @@
 #include "modbus_parser.hpp"
 #include "config_server.hpp"
 #include "ArduinoJson.h"
+#include "modbus_handler.hpp"
 #include <cmath>
 // constants
 static const char *TAG = "METER_APP";
-static const char *TAG_UART = "UART";
-static const char *TAG_MODBUS = "MODBUS";
+static const char *TAG_MODBUS = "MODBUS_RTU";
 static const char *TAG_FS = "FS";
 
 #define UART_PORT_NUM UART_NUM_1
@@ -25,12 +25,12 @@ static const char *TAG_FS = "FS";
 // variables
 bool config_file_exists = false;
 
-// function prototypes
-uart_word_length_t get_data_bits(int val);
-uart_parity_t get_parity(std::string val);
-uart_stop_bits_t get_stop_bits(int val);
+// // function prototypes
+// uart_word_length_t get_data_bits(int val);
+// uart_parity_t get_parity(std::string val);
+// uart_stop_bits_t get_stop_bits(int val);
 
-double get_modbus_parameter(std::string key, JsonDocument& meter_config);
+// double get_modbus_parameter(std::string key, JsonDocument& meter_config);
 
 extern "C" void app_main(void)
 {
@@ -43,31 +43,15 @@ extern "C" void app_main(void)
     {
         deserializeJson(meter_config, load_file_to_string());
 
-        const uart_config_t uart_config = {
-            .baud_rate = meter_config["serial"]["baud_rate"],
-            .data_bits = get_data_bits(meter_config["serial"]["data_bits"]),
-            .parity = get_parity(meter_config["serial"]["parity"]),
-            .stop_bits = get_stop_bits(meter_config["serial"]["stop_bits"]),
-            .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-            .source_clk = UART_SCLK_DEFAULT};
-
         esp_log_level_set(TAG, ESP_LOG_INFO);
-        esp_log_level_set(TAG_UART, ESP_LOG_INFO);
         esp_log_level_set(TAG_MODBUS, ESP_LOG_INFO);
         esp_log_level_set(TAG_FS, ESP_LOG_INFO);
 
-        ESP_LOGI(TAG, "Start RS485 application test and configure UART.");
-
-        ESP_ERROR_CHECK(uart_driver_install(UART_PORT_NUM, BUF_SIZE * 2, 0, 0, NULL, 0));
-        ESP_ERROR_CHECK(uart_param_config(UART_PORT_NUM, &uart_config));
-
-        ESP_ERROR_CHECK(uart_set_pin(UART_PORT_NUM, TXD_PIN, RXD_PIN, RTS_PIN, CTS_PIN));
-        // Set RS485 half duplex mode
-        ESP_ERROR_CHECK(uart_set_mode(UART_PORT_NUM, UART_MODE_RS485_HALF_DUPLEX));
-
-        ESP_LOGI(TAG_UART, "UART configured successfully.");
 
         ESP_LOGI(TAG_MODBUS, "Modbus RTU Master Initialized...\n");
+        ESP_ERROR_CHECK(init_meter_hardware(meter_config));
+        ESP_LOGI(TAG_MODBUS,"MODBUS RTU Successful configured");
+
     }
     else
     {
@@ -146,140 +130,4 @@ extern "C" void app_main(void)
             vTaskDelay(pdMS_TO_TICKS(1000));
         }
     }
-}
-
-uart_word_length_t get_data_bits(int val)
-{
-    if (val == 5)
-        return UART_DATA_5_BITS;
-    if (val == 6)
-        return UART_DATA_6_BITS;
-    if (val == 7)
-        return UART_DATA_7_BITS;
-    if (val == 8)
-        return UART_DATA_8_BITS;
-    return UART_DATA_BITS_MAX; // Default
-}
-
-uart_parity_t get_parity(std::string val)
-{
-    if (val == "even")
-        return UART_PARITY_EVEN;
-    if (val == "odd")
-        return UART_PARITY_ODD;
-    return UART_PARITY_DISABLE; // Default
-}
-
-uart_stop_bits_t get_stop_bits(int val)
-{
-    if (val == 1)
-        return UART_STOP_BITS_1;
-    if (val == 1.5)
-        return UART_STOP_BITS_1_5;
-    if (val == 2)
-        return UART_STOP_BITS_2;
-    return UART_STOP_BITS_MAX; // Default
-}
-
-// double get_modbus_parameter(std::string key, JsonDocument meter_config)
-// {
-//     uint8_t rx_buffer[BUF_SIZE];
-//     auto voltages = Modbus::ADU::prepareReadRequest(
-//         meter_config["meter_info"]["slave_id"], // Slave ID
-//         meter_config["regs"][key]["func"],      // function code
-//         meter_config["regs"][key]["addr"],      // Start Address
-//         meter_config["regs"][key]["qty"]);
-//     // 2. Transmit via UART
-
-//     uart_write_bytes(UART_PORT_NUM, (const char *)voltages.data(), voltages.size());
-
-//     // 3. Receive Response (Timeout 1000ms)
-//     int len = uart_read_bytes(UART_PORT_NUM, rx_buffer, BUF_SIZE, pdMS_TO_TICKS(1000));
-//     if (len > 0)
-//     {
-//         // 4. Parse using your ADU class
-//         auto result = Modbus::ADU::parseResponse(rx_buffer, len);
-
-//         if (result.has_value())
-//         {
-//             if (result->isError)
-//             {
-
-//                 ESP_LOGE(TAG_MODBUS, "Modbus Exception: 0x%02X", (uint8_t)result->exceptionCode);
-//                 return -3.0; // indicate modbus exception with a specific error code
-//             }
-//             else
-//             {
-//                 ESP_LOGI(TAG_MODBUS, "Data Received (%d registers):\n", result->registers.size());
-//                 for (size_t i = 0; i < result->registers.size(); ++i)
-//                 {
-//                     printf(" Register[%d]: %u (0x%04X)\n", i, result->registers[i], result->registers[i]);
-//                 }
-//                 int divider = meter_config["regs"][key]["divider"].as<int>();
-//                 double value = static_cast<double>(result->value) / divider; // cast to double for division otherwise it truncates to an integer
-//                 return value;
-//             }
-//         }
-//         else
-//         {
-//             ESP_LOGE(TAG_MODBUS, "Error: CRC mismatch or malformed packet\n");
-//             return -1.0;
-//         }
-//     }
-//     else
-//     {
-//         ESP_LOGE(TAG, "Error: No response from slave (Timeout)\n");
-//         return -2.0;
-//     }
-// return -999.0; // default error code for unexpected cases
-// }
-
-
-double get_modbus_parameter(std::string key, JsonDocument& meter_config)
-{
-   static uint8_t rx_buffer[BUF_SIZE];
-    auto voltages = Modbus::ADU::prepareReadRequest(
-        meter_config["meter_info"]["slave_id"], 
-        meter_config["regs"][key]["func"],      
-        meter_config["regs"][key]["addr"],      
-        meter_config["regs"][key]["qty"]);
-
-    // 1. Transmit
-    uart_write_bytes(UART_PORT_NUM, (const char *)voltages.data(), voltages.size());
-
-    // 2. Receive Response (Timeout Check)
-    int len = uart_read_bytes(UART_PORT_NUM, rx_buffer, BUF_SIZE, pdMS_TO_TICKS(1000));
-    if (len <= 0) {
-        ESP_LOGE(TAG, "Error: No response from slave (Timeout)");
-        return -1.0; 
-    }
-
-    // 3. Parse Response (Format Check)
-    auto result = Modbus::ADU::parseResponse(rx_buffer, len);
-    if (!result.has_value()) {
-        ESP_LOGE(TAG_MODBUS, "Error: CRC mismatch or malformed packet");
-        return -2.0;
-    }
-
-    // 4. Check for Modbus Exceptions (Device-level error)
-    if (result->isError) {
-        ESP_LOGE(TAG_MODBUS, "Modbus Exception: 0x%02X", (uint8_t)result->exceptionCode);
-        return -3.0;
-    }
-
-    // 5. SUCCESS PATH: The "Happy Path" stays clean and un-nested
-    ESP_LOGI(TAG_MODBUS, "Data Received (%d registers)", result->registers.size());
-    
-    // Optional: Log registers for debugging
-    for (size_t i = 0; i < result->registers.size(); ++i) {
-        printf(" Register[%d]: %u (0x%04X)\n", i, result->registers[i], result->registers[i]);
-    }
-
-    int divider = meter_config["regs"][key]["divider"].as<int>();
-    
-    // Safety check for division by zero if config is missing
-    if (divider == 0) divider = 1; 
-
-    double value = static_cast<double>(result->value) / divider;
-    return value;
 }
