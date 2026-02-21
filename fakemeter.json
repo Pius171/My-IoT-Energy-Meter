@@ -1,7 +1,7 @@
 {
     "meter_info": {
         "meter_name": "Fake Meter",
-        "phase": 1,
+        "phase": 2,
         "slave_id": 1
     },
     "serial": {
@@ -18,36 +18,56 @@
         "Vl1": {
             "addr": 0,
             "func": 3,
-            "bytes": 1,
-            "scale": 0.1,
+            "qty": 1,
+            "divider": 10,
+            "unit": "V"
+        },
+        "Vl2": {
+            "addr": 1,
+            "func": 3,
+            "qty": 1,
+            "divider": 10,
             "unit": "V"
         },
         "Il1": {
             "addr": 1,
             "func": 3,
-            "bytes": 2,
-            "scale": 0.1,
+            "qty": 2,
+            "divider": 100,
+            "unit": "A"
+        },
+        "Il2": {
+            "addr": 1,
+            "func": 3,
+            "qty": 2,
+            "divider": 100,
             "unit": "A"
         },
         "power": {
-            "addr": 1868,
+            "addr": 1,
             "func": 3,
-            "bytes": 2,
-            "scale": 0.01,
+            "qty": 2,
+            "divider": 100,
             "unit": "kW"
         },
-        "freq": {
-            "addr": 1860,
+        "pf": {
+            "addr": 1,
             "func": 3,
-            "bytes": 2,
-            "scale": 0.1,
+            "qty": 2,
+            "divider": 1
+        },
+        "freq": {
+            "addr": 1,
+            "func": 3,
+            "qty": 2,
+            "divider": 10,
             "unit": "Hz"
         },
         "energy": {
-            "addr": 1800,
+            "addr": 1,
             "func": 3,
-            "bytes": 2,
-            "scale": 1.0,
+            "qty": 2,
+            "divider": 1.0,
             "unit": "kWh"
         }
     }

@@ -32,6 +32,7 @@ struct ModbusResult {
     FunctionCode functionCode;
     std::vector<uint16_t> registers;
     std::vector<bool> discreteInputs;
+    uint64_t value;
     bool isError = false;
     ExceptionCode exceptionCode = static_cast<ExceptionCode>(0);
 };

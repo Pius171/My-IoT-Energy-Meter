@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "modbus_parser.hpp"
 #include <algorithm>
+#include <variant>
 
 namespace Modbus {
 
@@ -113,14 +114,34 @@ std::optional<ModbusResult> ADU::parseResponse(const uint8_t* buffer, size_t len
         if (length < static_cast<size_t>(byteCount + 5)) return std::nullopt;
 
         if (rawFunc == 0x03 || rawFunc == 0x04) {
+            uint64_t accumulator = 0;
             for (int i = 0; i < byteCount; i += 2) {
                 uint16_t val = (buffer[3 + i] << 8) | buffer[4 + i];
                 result.registers.push_back(val);
+                accumulator |= (static_cast<uint64_t>(val) << (i*8));
             }
+            // printf("Debug: Accumulated Value = 0x%016llX\n", accumulator);
+            // printf("Debug: Accumulated Value = %llu\n", (unsigned long long)accumulator);
+            result.value=accumulator;
+
         }
+
     }
 
     return result;
 }
+
+
+// using ModbusValue = std::variant<uint16_t, uint32_t, float, double>;
+
+// ModbusValue interpretData(const ModbusResult& result, int byte_count) {
+//     switch(byte_count) {
+
+//         case 2:  return result.getUint16(0);
+//         case 4:  return result.getUint32(0);
+//         case 8:  return result.getUint64(0);
+//         default:          return result.registers[0];
+//     }
+// }
 
 } // namespace Modbus
