@@ -6,6 +6,33 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 7.4.2
+  blues/notecard:
+    component_hash: 06a951af021329536d6a63ae031cad46d84a7bee588f0fc7dceb0623bd5cbbe0
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.5.1'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    targets:
+    - esp32
+    - esp32s2
+    - esp32s3
+    - esp32c3
+    - esp32c6
+    - esp32h2
+    version: 0.2.6
+  espressif/esp_modem:
+    component_hash: 07b6ca85dc0c1edbcd76f650005c74067001db138db6bfa106bf05567adca4af
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.1'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 2.0.0
   idf:
     source:
       type: idf
@@ -22,8 +49,10 @@ dependencies:
     version: 1.20.4
 direct_dependencies:
 - bblanchon/arduinojson
+- blues/notecard
+- espressif/esp_modem
 - idf
 - joltwallet/littlefs
-manifest_hash: 29f9fcb9d470f30ffdf7c044fb67cfef560011e705704cf0a5688202a85ca229
+manifest_hash: b72bbdac274848721eb4a0ef996877979fa8f2c197d1382da89e681dabd605c1
 target: esp32
 version: 2.0.0

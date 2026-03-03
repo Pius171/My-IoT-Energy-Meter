@@ -25,12 +25,6 @@ static const char *TAG_FS = "FS";
 // variables
 bool config_file_exists = false;
 
-// // function prototypes
-// uart_word_length_t get_data_bits(int val);
-// uart_parity_t get_parity(std::string val);
-// uart_stop_bits_t get_stop_bits(int val);
-
-// double get_modbus_parameter(std::string key, JsonDocument& meter_config);
 
 extern "C" void app_main(void)
 {
@@ -70,7 +64,7 @@ extern "C" void app_main(void)
             {
                 std::string Vp = std::string("Vl") + std::to_string(i); // phase voltage key in config file
                 std::string Ip = std::string("Il") + std::to_string(i); // phase current key in config file
-                int voltage_divider = meter_config["regs"][Vp]["divider"].as<int>();
+                int voltage_divider = meter_config["regs"][Vp]["divider"].as<int>(); // the divider is bascially a scale
                 int current_divider = meter_config["regs"][Ip]["divider"].as<int>();
 
                 int voltage_precision = static_cast<int>(std::log10(voltage_divider));
