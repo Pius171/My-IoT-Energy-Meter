@@ -22,8 +22,81 @@
     1. wait for file to be uploaded
     2. when file is uploaded reset MCU
 
-todo
-- set up things board (use http to test)
-- final year project write uo
-- hackster write up
+## Todo
+- [x] update methodology
+- [x] replace notehub and notecard with A7670
+- [x] do some hackstar write up
+- [x] plan tests to be carried out for results - fyp
+- [] test modbus comms with meter tomorrow. plan the rest. I need to finish b4 28 and would have sent my pcb for construction
+- [] move to main code base
+- [] create your own config file
+- [x] build thingsboard dashboard
+- [] confirm if it is working with main codebase
+- [] build flow chart - fyp
+- [] results
+- [] finish fyp writeup - fyp
+- [] writeup for hackster
+- [] enclosure
+- [] billing- main selling point
+- []start pitching
 
+
+# hackster project tips
+- source from one shop
+- use circuit designers for your project
+- Readers shold be able to have a hint of what your are doing from your cover image
+- use consistent white spaces for ur code
+- use a lot of heading to section your work and when you want to move to another idea in  a section use paragraphs
+
+# Hackster Project Todo
+update tools.
+update all tools to have one shop or just use AliExpress for all of them
+
+
+# Results
+This is what my report is expecting
+- an image of the complete product
+
+- a way to prove that modbus rtu communication was achieved
+
+- system output: serial monitor output showing successful cellular connection, and then publishing via mqtt
+
+- Create a table comparing the physical LCD reading on the Circutor CIRWATT B with the data received on your ThingsBoard dashboard.
+
+- A time-series graph (exported from ThingsBoard) showing the "Daily Energy Profile" of a PAU facility. This directly supports your objective to improve labor hour utilization.
+
+- Hardware Test Results: High-quality photos of the soldered PCB and the final gateway in its custom enclosure mounted next to a live meter at PAU and a A "Before and After" photo showing the load being de-energized/energized via the dashboard button, validating your remote control objective.
+
+# Products version
+- fully study and experiment with everything on thingsboard so I can be aware of my options
+- device provisioning
+- config file download
+- firmware update
+
+
+# My chip
+ESP32-C3FH4
+
+
+
+Fyp
+energy consumption - numeric
+energy cost - graph numeric
+voltage - numeric
+current - graph and numeric
+power - graph and numeric
+pf
+
+client customers - hostels etc
+energy consumption - numeric
+energy cost - numeric
+voltage - numeric
+current - graph and numeric
+power - graph and numeric
+pf
+
+
+Client
+Preferable a table of all device with:
+energy consumption
+ability to see customer dashboard
