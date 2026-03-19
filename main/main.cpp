@@ -11,24 +11,13 @@
 #include "modbus_handler.hpp"
 #include <cmath>
 
-// Includes for Cellular and MQTT
-#include "esp_netif.h"
-#include "esp_event.h"
-#include "mqtt_client.h"
-#include "cxx_include/esp_modem_netif.hpp"
-#include "esp_modem_dce_service.h"
+
 
 // constants
 static const char *TAG = "METER_APP";
 static const char *TAG_MODBUS = "MODBUS_RTU";
 static const char *TAG_FS = "FS";
 
-// --- ThingsBoard MQTT Configuration ---
-#define THINGSBOARD_HOST "mqtt.thingsboard.cloud"
-#define THINGSBOARD_PORT 1883
-#define THINGSBOARD_ACCESS_TOKEN "bic5y0h5jts4tqxx6xqj"
-#define MQTT_TELEMETRY_TOPIC "v1/devices/me/telemetry"
-// ------------------------------------
 
 #define UART_PORT_NUM UART_NUM_1
 #define TXD_PIN 23
@@ -45,7 +34,7 @@ extern "C" void app_main(void)
 {
     run_config_server();
     config_file_exists = is_config_file_present();
-    JsonDocument meter_config;
+    JsonDocument meter_config;  
     JsonDocument meter_data; // this will hold the values read from the meter and will be used to send to the cloud
     // Configure UART
     if (config_file_exists)
@@ -60,36 +49,6 @@ extern "C" void app_main(void)
         ESP_LOGI(TAG_MODBUS, "Modbus RTU Master Initialized...\n");
         ESP_ERROR_CHECK(init_meter_hardware(meter_config));
         ESP_LOGI(TAG_MODBUS,"MODBUS RTU Successful configured");
-
-        // --- Initialize Cellular Modem ---
-        // NOTE: The `run_config_server()` function already initializes the event loop and netif.
-        // If you were not running the config server, you would need to call:
-        // ESP_ERROR_CHECK(esp_netif_init());
-        // ESP_ERROR_CHECK(esp_event_loop_create_default());
-
-        // Register the IP event handler to know when the modem is connected
-        ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, ESP_EVENT_ANY_ID, &on_ip_event, NULL));
-
-        // Configure the modem DCE (Data Circuit-terminating Equipment)
-        // The APN is fetched from your configuration file. Make sure it's there!
-        // Example: "apn": "your.isp.apn" in meter_config.json
-        esp_modem_dce_config_t dce_config = ESP_MODEM_DCE_DEFAULT_CONFIG(meter_config["apn"]);
-        
-        // Configure the PPP network interface
-        esp_netif_config_t netif_config = ESP_NETIF_DEFAULT_PPP();
-        esp_netif_t *esp_netif = esp_netif_new(&netif_config);
-        assert(esp_netif);
-
-        // Create the modem object and link it to the network interface.
-        // CRITICAL: This assumes your modem is connected to different UART pins than your Modbus meter.
-        // Modbus uses UART1 (23, 22, 18). We will use UART2 (17, 16) for the modem.
-        // Change these pins to match your hardware wiring.
-        esp_modem_uart_config_t uart_config = {
-            .uart_port_num = UART_NUM_2, .tx_io_num = 17, .rx_io_num = 16, .rx_buffer_size = 1024, .tx_buffer_size = 512, .event_queue_size = 30
-        };
-        auto modem_netif = esp_modem::create_netif_dce(esp_netif, &dce_config, uart_config);
-        assert(modem_netif);
-        ESP_LOGI(TAG, "Modem setup complete. Waiting for connection...");
 
     }
     else
@@ -115,7 +74,7 @@ extern "C" void app_main(void)
                 int voltage_precision = static_cast<int>(std::log10(voltage_divider));
                 int current_precision = static_cast<int>(std::log10(current_divider)); // Number of decimal places based on divider
 
-                double voltage = get_modbus_parameter(Vp, meter_config);
+                    double voltage = get_modbus_parameter(Vp, meter_config);
                 double current = get_modbus_parameter(Ip, meter_config);
 
                 std::string voltage_unit = meter_config["regs"][Vp]["unit"].as<const char *>();
@@ -161,23 +120,6 @@ extern "C" void app_main(void)
             // serializeJsonPretty(meter_data, output);
             // printf("Meter Data JSON:\n%s\n", output.c_str());
             vTaskDelay(pdMS_TO_TICKS(2000));
-
-            // --- Send data to ThingsBoard ---
-            if (mqtt_connected) {
-                // As requested, send a random temperature value
-                int random_temp = 20 + (esp_random() % 10);
-                char payload[50];
-                snprintf(payload, sizeof(payload), "{\"temperature\":%d}", random_temp);
-
-                ESP_LOGI(TAG, "Publishing to ThingsBoard: %s", payload);
-                esp_mqtt_client_publish(client, MQTT_TELEMETRY_TOPIC, payload, 0, 1, 0);
-
-                // --- OPTIONAL: Send the actual meter data ---
-                // std::string meter_payload;
-                // serializeJson(meter_data, meter_payload);
-                // esp_mqtt_client_publish(client, MQTT_TELEMETRY_TOPIC, meter_payload.c_str(), 0, 1, 0);
-                // --------------------------------------------
-            }
         }
         else
         {
