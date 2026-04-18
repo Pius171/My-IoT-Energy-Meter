@@ -27,8 +27,9 @@
 - [x] replace notehub and notecard with A7670
 - [x] do some hackstar write up
 - [x] plan tests to be carried out for results - fyp
-- [] test modbus comms with meter tomorrow. plan the rest. I need to finish b4 28 and would have sent my pcb for construction
+- [x] test modbus comms with meter tomorrow. plan the rest. I need to finish b4 28 and would have sent my pcb for construction
 - [] move to main code base
+- [] just do write up
 - [] create your own config file
 - [x] build thingsboard dashboard
 - [] confirm if it is working with main codebase
@@ -40,7 +41,11 @@
 - [] billing- main selling point
 - []start pitching
 
+# worry
+- No need to worry about number of phases. if thingsboard did not see the other phases then it is single phase and the other phases will remian 0
 
+- Time and plan to pitch to mr Nnamdi
+- create website after contract PAU
 # hackster project tips
 - source from one shop
 - use circuit designers for your project
