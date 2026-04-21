@@ -3,7 +3,7 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 
-static const char *TAG = "MODBUS_HANDLER";
+
 
 esp_err_t init_meter_hardware(const JsonDocument& config) {
     const uart_config_t uart_config = {

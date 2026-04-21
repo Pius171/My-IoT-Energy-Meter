@@ -29,8 +29,10 @@
 - [x] plan tests to be carried out for results - fyp
 - [x] test modbus comms with meter tomorrow. plan the rest. I need to finish b4 28 and would have sent my pcb for construction
 - [] move to main code base
+- [] update thingsboard dashboard
+- [] previous and final energy
 - [] just do write up
-- [] create your own config file
+- [x] create your own config file
 - [x] build thingsboard dashboard
 - [] confirm if it is working with main codebase
 - [] build flow chart - fyp
@@ -43,6 +45,9 @@
 
 # worry
 - No need to worry about number of phases. if thingsboard did not see the other phases then it is single phase and the other phases will remian 0
+
+- detect mode before connect. Now it removes it from its current mode and put it in command mode, checks signal quality and then
+put it back in data mode. The things is that I dont mind it being permantely in data mode
 
 - Time and plan to pitch to mr Nnamdi
 - create website after contract PAU
@@ -78,10 +83,39 @@ This is what my report is expecting
 - config file download
 - firmware update
 
+## Alarms
+### for utility
+- undervoltage, unpaid and still consuming
+
+### for customers
+- month end time to pay
+
+# after exam
+- setup Kriitor email
+
 
 # My chip
 ESP32-C3FH4
 
+# questions for abatan
+- recommended decimal places for various values
+- recommendation for plots
+
+
+# features ideas
+- always ask for feedback somewhere in the users view
+- sort tables according to set pirorities. e.g bill_unpaid, undervoltage
+
+# study
+- thingsboad reporting
+- asset profiles
+
+# company ideas
+
+
+# after bagging first client
+- documentations
+- create thingsboard tutorial specific to MITA that I can give to new hires so as to get them up to speed with the dashboard
 
 
 Fyp

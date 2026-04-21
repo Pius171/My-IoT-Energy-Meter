@@ -9,8 +9,9 @@
 #include "config_server.hpp"
 #include "ArduinoJson.h"
 #include "modbus_handler.hpp"
+#include "myPPP.h"
+#include "my_mqtt.h"
 #include <cmath>
-
 
 
 // constants
@@ -20,14 +21,15 @@ static const char *TAG_FS = "FS";
 
 
 #define UART_PORT_NUM UART_NUM_1
-#define TXD_PIN 23
-#define RXD_PIN 22
-#define RTS_PIN 18
+#define TXD_PIN CONFIG_RS485_UART_TX_PIN
+#define RXD_PIN CONFIG_RS485_UART_RX_PIN
+#define RTS_PIN CONFIG_RS485_UART_RTS_PIN
 #define CTS_PIN UART_PIN_NO_CHANGE
 #define BUF_SIZE 127
 
 // variables
 bool config_file_exists = false;
+
 
 
 extern "C" void app_main(void)
@@ -37,6 +39,12 @@ extern "C" void app_main(void)
     JsonDocument meter_config;  
     JsonDocument meter_data; // this will hold the values read from the meter and will be used to send to the cloud
     // Configure UART
+
+    ppp_setup();
+    modem_config();
+    ppp_data_mode_start();
+
+    my_mqtt_config();
     if (config_file_exists)
     {
         deserializeJson(meter_config, load_file_to_string());
@@ -53,7 +61,7 @@ extern "C" void app_main(void)
     }
     else
     {
-        ESP_LOGI(TAG_FS, "config file doesn't exist, skipping UART configuration");
+        ESP_LOGW(TAG_FS, "config file doesn't exist, skipping RS485-UART configuration");
     }
 // This prints the number of bytes NEVER used in the stack (the "safety margin")
 // ESP_LOGI(TAG, "Stack High Water Mark: %d bytes", uxTaskGetStackHighWaterMark(NULL));

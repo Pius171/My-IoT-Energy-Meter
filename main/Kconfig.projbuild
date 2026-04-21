@@ -1,0 +1,111 @@
+menu "My Custom Settings"
+
+        config MODEM_PPP_APN
+        string "Set MODEM APN"
+        default "web.gprs.mtnnigeria.net"
+        help
+            Set APN (Access Point Name), a logical name to choose data network
+
+
+    menu "UART Configuration"
+        config MODEM_UART_TX_PIN
+            int "TXD Pin Number"
+            default 32
+            range 0 56
+            help
+                Pin number of MODEM_UART TX.
+
+        config MODEM_UART_RX_PIN
+            int "RXD Pin Number"
+            default 33
+            range 0 56
+            help
+                Pin number of MODEM_UART RX.
+
+        config RS485_UART_TX_PIN
+            int "TXD Pin Number"
+            default 23
+            range 0 56
+            help
+                Pin number of RS485_UART TX.
+        config RS485_UART_RX_PIN
+            int "RXD Pin Number"
+            default 22
+            range 0 56
+            help
+                Pin number of RS485_UART RX.
+
+
+
+        config MODEM_UART_EVENT_TASK_STACK_SIZE
+            int "UART Event Task Stack Size"
+            range 2000 6000
+            default 2048
+            help
+                Stack size of UART event task.
+
+        config MODEM_UART_EVENT_TASK_PRIORITY
+            int "UART Event Task Priority"
+            range 3 22
+            default 5
+            help
+                Priority of UART event task.
+
+        config MODEM_UART_EVENT_QUEUE_SIZE
+            int "UART Event Queue Size"
+            range 10 40
+            default 30
+            help
+                Length of UART event queue.
+
+        config MODEM_UART_PATTERN_QUEUE_SIZE
+            int "UART Pattern Queue Size"
+            range 10 40
+            default 20
+            help
+                Length of UART pattern queue.
+
+        config MODEM_UART_TX_BUFFER_SIZE
+            int "UART TX Buffer Size"
+            range 256 2048
+            default 512
+            help
+                Buffer size of UART TX buffer.
+
+        config MODEM_UART_RX_BUFFER_SIZE
+            int "UART RX Buffer Size"
+            range 256 2048
+            default 1024
+            help
+                Buffer size of UART RX buffer.
+    endmenu
+
+     config MQTT_BROKER_URI
+        string "MQTT Broker URL"
+        default "mqtt://demo.thingsboard.io"
+        help
+            URL of the mqtt broker which this example connects to.
+
+    config MQTT_TOPIC
+        string "MQTT topic to publish/subscribe"
+        default "replace/with/actual/topic"
+        help
+            MQTT topic, which we subscribe on and publish to.
+
+    config MQTT_USERNAME
+        string "MQTT username"
+        default "replace_with_actual_username"
+        help
+            MQTT username.
+
+
+    config DETECT_MODE_BEFORE_CONNECT
+        bool "Detect mode before connect"
+        default n
+        help
+            Set this to true to demonstrate mode auto-detection.
+            If enabled, the example tries to recognize the actual mode.
+            If mode is detected correctly and it is not a command mode,
+            then the example switches to command mode.
+
+endmenu
