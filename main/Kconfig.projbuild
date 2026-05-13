@@ -9,31 +9,38 @@ menu "My Custom Settings"
 
     menu "UART Configuration"
         config MODEM_UART_TX_PIN
-            int "TXD Pin Number"
+            int "MODEM TXD Pin Number"
             default 32
             range 0 56
             help
                 Pin number of MODEM_UART TX.
 
         config MODEM_UART_RX_PIN
-            int "RXD Pin Number"
+            int "MODEM RXD Pin Number"
             default 33
             range 0 56
             help
                 Pin number of MODEM_UART RX.
 
         config RS485_UART_TX_PIN
-            int "TXD Pin Number"
+            int "RS485 TXD Pin Number"
             default 23
             range 0 56
             help
                 Pin number of RS485_UART TX.
         config RS485_UART_RX_PIN
-            int "RXD Pin Number"
+            int "RS485 RXD Pin Number"
             default 22
             range 0 56
             help
                 Pin number of RS485_UART RX.
+
+        config RS485_UART_DERE_PIN
+            int "RS485 DERE Pin Number"
+            default 18
+            range 0 56
+            help
+                Pin number of RS485_UART DERE.
 
 
 
@@ -80,6 +87,7 @@ menu "My Custom Settings"
                 Buffer size of UART RX buffer.
     endmenu
 
+    menu "MQTT Configuration"
      config MQTT_BROKER_URI
         string "MQTT Broker URL"
         default "mqtt://demo.thingsboard.io"
@@ -107,5 +115,6 @@ menu "My Custom Settings"
             If enabled, the example tries to recognize the actual mode.
             If mode is detected correctly and it is not a command mode,
             then the example switches to command mode.
+    endmenu
 
 endmenu

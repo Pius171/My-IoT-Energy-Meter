@@ -5,7 +5,7 @@
 
 
 
-esp_err_t init_meter_hardware(const JsonDocument& config) {
+esp_err_t RS485_setup(const JsonDocument& config) {
     const uart_config_t uart_config = {
         .baud_rate = config["serial"]["baud_rate"],
         .data_bits = get_data_bits(config["serial"]["data_bits"]),
@@ -18,12 +18,12 @@ esp_err_t init_meter_hardware(const JsonDocument& config) {
     // Pins can be hardcoded here or pulled from JSON
     ESP_ERROR_CHECK(uart_driver_install(UART_PORT_NUM, BUF_SIZE * 2, 0, 0, NULL, 0));
     ESP_ERROR_CHECK(uart_param_config(UART_PORT_NUM, &uart_config));
-    ESP_ERROR_CHECK(uart_set_pin(UART_PORT_NUM, 23, 22, 18, UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(uart_set_pin(UART_PORT_NUM, CONFIG_RS485_UART_TX_PIN, CONFIG_RS485_UART_RX_PIN, CONFIG_RS485_UART_DERE_PIN, UART_PIN_NO_CHANGE));
     ESP_ERROR_CHECK(uart_set_mode(UART_PORT_NUM, UART_MODE_RS485_HALF_DUPLEX));
     
     return ESP_OK;
 }
-
+// i can use a pointer as a paramter and load the result into the pointer, then I can return an error
 double get_modbus_parameter(const std::string& key, const JsonDocument& config) {
     static uint8_t rx_buffer[BUF_SIZE]; // Saves stack space!
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Separate code
 - have a constants file 
 
@@ -139,3 +140,6 @@ Client
 Preferable a table of all device with:
 energy consumption
 ability to see customer dashboard
+=======
+# My-IoT-Energy-Meter
+>>>>>>> origin/main

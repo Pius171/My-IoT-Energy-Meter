@@ -2,6 +2,7 @@
 #include "my_mqtt.h"
 
 static const char *TAG = "my_mqtt";
+esp_mqtt_client_handle_t mqtt_client = NULL;
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t)event_data;
@@ -14,6 +15,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     case MQTT_EVENT_PUBLISHED:
         ESP_LOGI(TAG, "MQTT Published, msg_id=%d", event->msg_id);
         break;
+    case MQTT_EVENT_SUBSCRIBED:
+        ESP_LOGI(TAG, "MQTT SUBSCRIBED, msg_id=%d", event->msg_id);
     default:
         break;
     }
@@ -25,9 +28,17 @@ void my_mqtt_config(){
         .credentials.username = CONFIG_MQTT_USERNAME,
     };
 
-    esp_mqtt_client_handle_t mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+    mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
     ESP_ERROR_CHECK(esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL));
     ESP_ERROR_CHECK(esp_mqtt_client_start(mqtt_client));
+}
+
+void my_mqtt_publish(const char* payload, int qos){
+    /*
+    qos 0 = send at most once
+    qos 1 = send at least once. basically keeps sending until it is confirmed that the receiver got it
+    */
+    esp_mqtt_client_publish(mqtt_client, CONFIG_MQTT_TOPIC, payload, 0, qos, 0);
 }
 
 // uint32_t random_value = esp_random(); // returns a uint32_t, so we can use it to generate random values in the desired ranges
