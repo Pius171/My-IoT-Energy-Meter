@@ -15,9 +15,4 @@
 esp_err_t RS485_setup(const JsonDocument& config);
 double get_modbus_parameter(const std::string& key, const JsonDocument& config);
 
-// Private helpers (can be moved to the .cpp if you don't need them elsewhere)
-uart_word_length_t get_data_bits(int val);
-uart_parity_t get_parity(std::string val);
-uart_stop_bits_t get_stop_bits(int val);
-
 #endif
